@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>برنامه هفتگی</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    min-height:100vh;
+    padding:20px;
+    color:#e9edfb;
+    font-family:"Vazirmatn",Tahoma,system-ui,sans-serif;
+    background:
+      radial-gradient(900px 620px at 12% -12%, rgba(123,107,255,.35), transparent 62%),
+      radial-gradient(820px 620px at 92% 112%, rgba(0,212,255,.22), transparent 62%),
+      #070a14;
+    background-attachment:fixed;
+  }
+  .wrap{width:min(1200px,100%);margin:0 auto}
+
+  header{
+    text-align:center;
+    padding:22px;
+    margin-bottom:20px;
+    border-radius:22px;
+    background:linear-gradient(160deg, rgba(255,255,255,.07), rgba(255,255,255,.02));
+    border:1px solid rgba(255,255,255,.09);
+    box-shadow:0 20px 60px -30px rgba(0,0,0,.9);
+  }
+  header h1{
+    font-size:1.6rem;
+    font-weight:800;
+    background:linear-gradient(180deg,#fff 10%,#7b6bff 70%,#00d4ff 130%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  header p{color:#8b95b8;font-size:.85rem;margin-top:6px}
+
+  .toolbar{
+    display:flex;gap:10px;flex-wrap:wrap;justify-content:center;
+    margin-bottom:16px;
+  }
+  .toolbar button{
+    padding:10px 18px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,.12);
+    background:rgba(255,255,255,.05);
+    color:#e9edfb;
+    font-family:inherit;
+    font-size:.85rem;
+    font-weight:600;
+    cursor:pointer;
+    transition:.25s;
+  }
+  .toolbar button:hover{
+    background:rgba(123,107,255,.22);
+    border-color:rgba(123,107,255,.5);
+    transform:translateY(-1px);
+  }
+  .toolbar .status{
+    padding:10px 14px;
+    color:#8b95b8;
+    font-size:.8rem;
+    display:flex;align-items:center;
+  }
+  .toolbar .status.on{color:#4ade80}
+
+  .table-wrap{
+    border-radius:20px;
+    overflow:auto;
+    background:linear-gradient(160deg, rgba(255,255,255,.055), rgba(255,255,255,.02));
+    border:1px solid rgba(255,255,255,.09);
+    box-shadow:0 20px 60px -30px rgba(0,0,0,.9);
+    max-height:78vh;
+  }
+  table{
+    border-collapse:collapse;
+    width:100%;
+    min-width:900px;
+    font-size:.9rem;
+  }
+  thead th{
+    position:sticky;top:0;
+    z-index:2;
+    padding:14px 8px;
+    background:linear-gradient(180deg, #1a1f3a, #131728);
+    color:#cdd6ff;
+    font-weight:700;
+    font-size:.9rem;
+    border-bottom:1px solid rgba(255,255,255,.1);
+    border-left:1px solid rgba(255,255,255,.06);
+    white-space:nowrap;
+    text-align:center;
+  }
+  thead th:first-child{
+    z-index:3;
+    right:0;
+    background:linear-gradient(180deg, #1a1f3a, #131728);
+    box-shadow:inset -1px -1px 0 rgba(255,255,255,.1);
+  }
+  tbody th{
+    position:sticky;right:0;
+    z-index:1;
+    padding:12px 10px;
+    background:linear-gradient(90deg, #1a1f3a, #131728);
+    color:#cdd6ff;
+    font-weight:700;
+    font-size:.85rem;
+    border-left:1px solid rgba(255,255,255,.1);
+    border-bottom:1px solid rgba(255,255,255,.06);
+    white-space:nowrap;
+    text-align:center;
+    font-variant-numeric:tabular-nums;
+    box-shadow:inset -1px 0 0 rgba(255,255,255,.05);
+  }
+  td{
+    padding:10px;
+    border-left:1px solid rgba(255,255,255,.05);
+    border-bottom:1px solid rgba(255,255,255,.05);
+    min-width:120px;
+    height:68px;
+    vertical-align:top;
+    color:#e9edfb;
+    outline:none;
+    transition:background .15s, box-shadow .15s;
+    white-space:pre-wrap;
+    word-break:break-word;
+    font-size:.85rem;
+    line-height:1.55;
+    cursor:text;
+  }
+  td:focus{
+    background:rgba(123,107,255,.16);
+    box-shadow:inset 0 0 0 2px rgba(123,107,255,.55);
+}
+  td:hover{background:rgba(255,255,255,.03)}
+  td:empty::before{
+    content:attr(data-ph);
+    color:#4a5375;
+    font-size:.78rem;
+    pointer-events:none;
+  }
+  tr:nth-child(even) td{background:rgba(255,255,255,.012)}
+  tr:nth-child(even) td:hover{background:rgba(255,255,255,.045)}
+  tr:nth-child(even) td:focus{background:rgba(123,107,255,.2)}
+
+  /* رنگ ملایم برای آخر هفته */
+  .col-fri{background:rgba(0,212,255,.035)!important}
+  .col-thu{background:rgba(123,107,255,.035)!important}
+  td.col-fri:hover, td.col-thu:hover{background:rgba(255,255,255,.05)!important}
+
+  @media print{
+    body{background:#fff;color:#000;padding:0}
+    .toolbar{display:none}
+    header{color:#000;background:none;border:none;padding:10px;box-shadow:none}
+    header h1{color:#000;-webkit-text-fill-color:#000}
+    header p{color:#555}
+    thead th, tbody th{background:#f0f0f0 !important;color:#000 !important}
+    td{color:#000 !important;border-color:#ccc !important;background:#fff !important}
+    .table-wrap{box-shadow:none;border:1px solid #999;max-height:none;overflow:visible}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>برنامه هفتگی</h1>
+    <p>روی هر خانه کلیک کن و برنامه‌ات را بنویس — خودکار ذخیره می‌شود</p>
+  </header>
+
+  <div class="toolbar">
+    <button id="print">🖨️ چاپ / PDF</button>
+    <button id="clear">🗑️ پاک کردن همه</button>
+    <div class="status" id="status">آماده</div>
+  </div>
+
+  <div class="table-wrap">
+    <table id="table">
+      <thead>
+        <tr id="head-row"></tr>
+      </thead>
+      <tbody id="body"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+(function(){
+  /* ⚙️ تنظیمات */
+  var DAYS = ['شنبه','یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنجشنبه','جمعه'];
+  var SLOTS = [
+    '۸ تا ۱۰',
+    '۱۰ تا ۱۲',
+    '۱۲ تا ۱۴',
+    '۱۴ تا ۱۶',
+    '۱۶ تا ۱۸',
+    '۱۸ تا ۲۰',
+    '۲۰ تا ۲۲',
+    '۲۲ تا ۲۴'
+  ];
+  var KEY = 'weekly_schedule_v1';
+
+  var headRow = document.getElementById('head-row');
+  var body    = document.getElementById('body');
+  var status  = document.getElementById('status');
+
+  /* ---------- ساخت هدر ---------- */
+  // گوشه خالی
+  var corner = document.createElement('th');
+  corner.textContent = '';
+  headRow.appendChild(corner);
+
+  // ۷ روز هفته
+  DAYS.forEach(function(d, i){
+    var th = document.createElement('th');
+    th.textContent = d;
+    headRow.appendChild(th);
+  });
+
+  /* ---------- بارگذاری داده‌های قبلی ---------- */
+  var data = loadData();
+
+  /* ---------- ساخت بدنه ---------- */
+  SLOTS.forEach(function(slot, r){
+    var tr = document.createElement('tr');
+
+    // ستون اول: بازه زمانی
+    var th = document.createElement('th');
+    th.textContent = slot;
+    tr.appendChild(th);
+
+    // ۷ روز
+    DAYS.forEach(function(day, c){
+      var td = document.createElement('td');
+      td.contentEditable = 'true';
+      td.dataset.ph = '...';
+      td.spellcheck = false;
+
+      // رنگ ملایم برای پنجشنبه و جمعه
+      if (c === 6) td.classList.add('col-fri');
+      if (c === 5) td.classList.add('col-thu');
+
+      var key = 'r' + r + 'c' + c;
+      td.textContent = data[key] || '';
+
+      // ذخیره هنگام تایپ
+      td.addEventListener('input', function(){
+        data[key] = td.innerText;
+        scheduleSave();
+      });
+
+      // جلوگیری از درج HTML هنگام Paste
+      td.addEventListener('paste', function(e){
+        e.preventDefault();
+        var text = (e.clipboardData || window.clipboardData).getData('text/plain');
+        if (document.execCommand) {
+          document.execCommand('insertText', false, text);
+        } else {
+          td.innerText += text;
+          data[key] = td.innerText;
+          scheduleSave();
+        }
+      });
+
+      // زدن Enter = رفتن به خانه بعدی (اختیاری)
+      td.addEventListener('keydown', function(e){
+        if (e.key === 'Enter' && !e.shiftKey) {
+e.preventDefault();
+          var next = td.nextElementSibling;
+          if (next && next.contentEditable === 'true') {
+            next.focus();
+          } else {
+            // رفتن به سطر بعد
+            var nextRow = td.parentElement.nextElementSibling;
+            if (nextRow) {
+              var firstCell = nextRow.querySelectorAll('td')[0];
+              if (firstCell) firstCell.focus();
+            }
+          }
+        }
+      });
+
+      tr.appendChild(td);
+    });
+
+    body.appendChild(tr);
+  });
+
+  /* ---------- ذخیره‌سازی ---------- */
+  var saveTimer = null;
+
+  function scheduleSave(){
+    status.textContent = 'در حال ذخیره...';
+    status.classList.remove('on');
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function(){
+      try {
+        localStorage.setItem(KEY, JSON.stringify(data));
+        status.textContent = '✓ ذخیره شد';
+        status.classList.add('on');
+        setTimeout(function(){
+          status.textContent = 'آماده';
+          status.classList.remove('on');
+        }, 1500);
+      } catch(e) {
+        status.textContent = 'خطا در ذخیره';
+      }
+    }, 400);
+  }
+
+  function loadData(){
+    try {
+      return JSON.parse(localStorage.getItem(KEY)) || {};
+    } catch(e) {
+      return {};
+    }
+  }
+
+  /* ---------- دکمه‌ها ---------- */
+  document.getElementById('print').addEventListener('click', function(){
+    window.print();
+  });
+
+  document.getElementById('clear').addEventListener('click', function(){
+    if (confirm('همه برنامه‌ها پاک شوند؟ این کار قابل بازگشت نیست.')) {
+      data = {};
+      localStorage.removeItem(KEY);
+      document.querySelectorAll('td[contenteditable]').forEach(function(td){
+        td.textContent = '';
+      });
+      status.textContent = 'پاک شد';
+      status.classList.add('on');
+      setTimeout(function(){
+        status.textContent = 'آماده';
+        status.classList.remove('on');
+      }, 1800);
+    }
+  });
+})();
+</script>
+</body>
+</html>
+		
