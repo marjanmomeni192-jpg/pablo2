@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>برنامه هفتگی من</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  {box-sizing:border-box;margin:0;padding:0}
+
+  :root{
+    --fg:#e9edfb;
+    --muted:#8b95b8;
+    --c1:#7b6bff;
+    --c2:#00d4ff;
+    --line:rgba(255,255,255,.09);
+    --bg-cell:rgba(255,255,255,.035);
+    --bg-head:rgba(123,107,255,.15);
+    --bg-time:rgba(0,212,255,.10);
+  }
+
+  html,body{height:100%}
+  body{
+    min-height:100vh;
+    padding:22px;
+    color:var(--fg);
+    font-family:"Vazirmatn",Tahoma,system-ui,sans-serif;
+    direction:rtl;
+    background:
+      radial-gradient(900px 620px at 12% -12%, rgba(123,107,255,.38), transparent 62%),
+      radial-gradient(820px 620px at 92% 112%, rgba(0,212,255,.24), transparent 62%),
+      #070a14;
+    background-attachment:fixed;
+  }
+
+  .container{
+    max-width:1200px;
+    margin:0 auto;
+  }
+
+  header.page-head{
+    text-align:center;
+    margin-bottom:22px;
+  }
+
+  header.page-head h1{
+    font-size:1.7rem;
+    font-weight:800;
+    background:linear-gradient(180deg,#ffffff 10%,var(--c1) 70%,var(--c2) 130%);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+
+  header.page-head p{
+    margin-top:6px;
+    font-size:.85rem;
+    color:var(--muted);
+  }
+
+  .toolbar{
+    display:flex;
+    gap:10px;
+    justify-content:center;
+    flex-wrap:wrap;
+    margin-bottom:18px;
+  }
+
+  .toolbar button{
+    padding:10px 18px;
+    border-radius:14px;
+    border:1px solid var(--line);
+    background:rgba(255,255,255,.05);
+    color:var(--fg);
+    font-family:inherit;
+    font-size:.85rem;
+    font-weight:600;
+    cursor:pointer;
+    transition:.25s;
+  }
+
+  .toolbar button:hover{
+    background:rgba(123,107,255,.25);
+    border-color:rgba(123,107,255,.5);
+    transform:translateY(-1px);
+  }
+
+  .toolbar button.danger:hover{
+    background:rgba(255,80,80,.2);
+    border-color:rgba(255,80,80,.5);
+  }
+
+  .table-wrap{
+    border-radius:22px;
+    padding:14px;
+    background:linear-gradient(160deg,rgba(255,255,255,.06),rgba(255,255,255,.02));
+    border:1px solid var(--line);
+    box-shadow:0 30px 80px -30px rgba(0,0,0,.9);
+    overflow-x:auto;
+  }
+
+  table{
+    width:100%;
+    border-collapse:separate;
+    border-spacing:6px;
+    min-width:850px;
+  }
+
+  / --- سلول‌های سرصفحه (روزها + گوشه) --- /
+  th{
+    padding:14px 6px;
+    font-size:.9rem;
+    font-weight:700;
+    text-align:center;
+    color:#eef1ff;
+    border-radius:14px;
+    background:var(--bg-head);
+    border:1px solid rgba(123,107,255,.3);
+    white-space:nowrap;
+  }
+
+  th.corner{
+    background:rgba(255,255,255,.05);
+    border:1px dashed rgba(255,255,255,.15);
+    color:var(--muted);
+    font-weight:600;
+    font-size:.78rem;
+    min-width:110px;
+  }
+
+  / --- ستون ساعت‌ها --- /
+  td.time{
+    padding:14px 8px;
+    font-size:.85rem;
+    font-weight:700;
+    text-align:center;
+    color:#b9e7ff;
+    border-radius:14px;
+    background:var(--bg-time);
+    border:1px solid rgba(0,212,255,.25);
+    white-space:nowrap;
+    min-width:110px;
+    font-variant-numeric:tabular-nums;
+  }
+
+  / --- سلول‌های برنامه (قابل ویرایش) --- /
+  td.slot{
+    min-width:120px;
+    height:70px;
+    padding:8px 10px;
+    border-radius:14px;
+    background:var(--bg-cell);
+    border:1px solid var(--line);
+    font-size:.82rem;
+    line-height:1.6;
+    color:#e9edfb;
+    vertical-align:top;
+    outline:none;
+    transition:.18s;
+    word-wrap:break-word;
+    overflow-wrap:break-word;
+    cursor:text;
+  }
+
+  td.slot:hover{
+    background:rgba(255,255,255,.07);
+    border-color:rgba(123,107,255,.35);
+  }
+
+  td.slot:focus{
+    background:rgba(123,107,255,.14);
+    border-color:rgba(123,107,255,.65);
+    box-shadow:0 0 0 3px rgba(123,107,255,.15);
+  }
+
+  / ظرفیت‌های رنگی برای روزهای مختلف */
+  td.slot[data
+
+-day="0"]:focus{border-color:rgba(255,99,132,.7);background:rgba(255,99,132,.12)}
+  td.slot[data-day="1"]:focus{border-color:rgba(255,159,64,.7);background:rgba(255,159,64,.12)}
+  td.slot[data-day="2"]:focus{border-color:rgba(255,205,86,.7);background:rgba(255,205,86,.12)}
+  td.slot[data-day="3"]:focus{border-color:rgba(75,192,192,.7);background:rgba(75,192,192,.12)}
+  td.slot[data-day="4"]:focus{border-color:rgba(54,162,235,.7);background:rgba(54,162,235,.12)}
+  td.slot[data-day="5"]:focus{border-color:rgba(153,102,255,.7);background:rgba(153,102,255,.12)}
+  td.slot[data-day="6"]:focus{border-color:rgba(201,203,207,.7);background:rgba(201,203,207,.12)}
+
+  .hint{
+    text-align:center;
+    margin-top:16px;
+    font-size:.78rem;
+    color:var(--muted);
+  }
+
+  .saved-badge{
+    display:inline-block;
+    margin-top:10px;
+    padding:5px 14px;
+    border-radius:999px;
+    font-size:.72rem;
+    background:rgba(0,212,255,.12);
+    border:1px solid rgba(0,212,255,.3);
+    color:#a5e9ff;
+    opacity:0;
+    transition:opacity .4s;
+  }
+
+  .saved-badge.show{opacity:1}
+
+  @media (max-width:600px){
+    body{padding:12px}
+    header.page-head h1{font-size:1.3rem}
+    table{min-width:720px}
+    td.slot{min-width:100px;height:60px;font-size:.75rem}
+    th{font-size:.8rem;padding:10px 4px}
+    td.time{font-size:.78rem;padding:10px 6px;min-width:90px}
+    th.corner{min-width:90px;font-size:.7rem}
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <header class="page-head">
+    <h1>برنامه هفتگی من</h1>
+    <p>برای نوشتن برنامه، روی هر خانه کلیک کنید. تغییرات خودکار ذخیره می‌شود.</p>
+  </header>
+
+  <div class="toolbar">
+    <button id="btn-clear">پاک کردن همه</button>
+    <button id="btn-clear-row">پاک کردن یک روز</button>
+    <button id="btn-print">چاپ / PDF</button>
+  </div>
+
+  <div class="table-wrap">
+    <table id="schedule">
+      <thead>
+        <tr id="head-row">
+          <!-- با JavaScript پر می‌شود -->
+        </tr>
+      </thead>
+      <tbody id="body-rows">
+        <!-- با JavaScript پر می‌شود -->
+      </tbody>
+    </table>
+  </div>
+
+  <div class="hint">
+    <div class="saved-badge" id="saved">✓ ذخیره شد</div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  /* ============================================================
+     ⚙️ تنظیمات
+     ============================================================ /
+  var DAYS = ['شنبه','یک‌شنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنج‌شنبه','جمعه'];
+  var START_HOUR = 8;    // ساعت شروع
+  var END_HOUR   = 24;   // ساعت پایان
+  var STEP       = 2;    // هر چند ساعت یک بخش
+  var STORAGE_KEY = 'weekly_schedule_v1';
+
+  / ============================================================
+     ساخت جدول
+     ============================================================ /
+  function buildTable(){
+    var headRow = document.getElementById('head-row');
+    var body    = document.getElementById('body-rows');
+    headRow.innerHTML = '';
+    body.innerHTML    = '';
+
+    // --- سطر سرصفحه ---
+    // خانه خالی گوشه (بالا-راست در RTL)
+    var corner = document.createElement('th');
+    corner.className = 'corner';
+    corner.textContent = 'ساعت / روز';
+    headRow.appendChild(corner);
+
+    // ۷ روز هفته
+    for (var d = 0; d < DAYS.length; d++){
+      var th = document.createElement('th');
+      th.textContent = DAYS[d];
+      headRow.appendChild(th);
+    }
+
+    // --- سطرهای ساعت‌ها ---
+    for (var h = START_HOUR; h < END_HOUR; h += STEP){
+      var tr = document.createElement('tr');
+
+      // ستون ساعت
+      var tdTime = document.createElement('td');
+      tdTime.className = 'time';
+      tdTime.textContent = toFa(h) + ' تا ' + toFa(h + STEP);
+      tr.appendChild(tdTime);
+
+      // ۷ خانه قابل ویرایش
+      for (var d2 = 0; d2 < DAYS.length; d2++){
+        var td = document.createElement('td');
+        td.className = 'slot';
+        td.contentEditable = 'true';
+        td.dataset.day  = d2;
+        td.dataset.hour = h;
+        td.dataset.key  = 'd' + d2 + '_h' + h;
+        td.setAttribute('spellcheck', 'false');
+        tr.appendChild(td);
+      }
+
+      body.appendChild(tr);
+    }
+  }
+
+  / =====================
+
+=======================================
+     تبدیل عدد به فارسی
+     ============================================================ /
+  function toFa(n){
+    return String(n).replace(/\d/g, function(x){
+      return '۰۱۲۳۴۵۶۷۸۹'[x];
+    });
+  }
+
+  / ============================================================
+     ذخیره و بازخوانی از localStorage
+     ============================================================ /
+  function saveAll(){
+    var data = {};
+    document.querySelectorAll('td.slot').forEach(function(td){
+      var txt = td.innerText.trim();
+      if (txt) data[td.dataset.key] = txt;
+    });
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      showSaved();
+    } catch(e){}
+  }
+
+  function loadAll(){
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      var data = JSON.parse(raw);
+      document.querySelectorAll('td.slot').forEach(function(td){
+        if (data[td.dataset.key]) td.innerText = data[td.dataset.key];
+      });
+    } catch(e){}
+  }
+
+  var savedTimer = null;
+  function showSaved(){
+    var b = document.getElementById('saved');
+    b.classList.add('show');
+    clearTimeout(savedTimer);
+    savedTimer = setTimeout(function(){
+      b.classList.remove('show');
+    }, 1200);
+  }
+
+  / ============================================================
+     مدیریت رویدادها
+     ============================================================ /
+  function bindEvents(){
+    // ذخیره هنگام تایپ
+    document.querySelectorAll('td.slot').forEach(function(td){
+      td.addEventListener('input', function(){
+        clearTimeout(td._t);
+        td._t = setTimeout(saveAll, 400);
+      });
+
+      // جلوگیری از درج HTML
+      td.addEventListener('paste', function(e){
+        e.preventDefault();
+        var text = (e.clipboardData || window.clipboardData).getData('text/plain');
+        document.execCommand('insertText', false, text);
+      });
+
+      // رفتن به خانه بعدی با Tab (پیش‌فرض مرورگر درست کار می‌کند)
+      // جلوگیری از Enter اضافه
+      td.addEventListener('keydown', function(e){
+        if (e.key === 'Enter' && !e.shiftKey){
+          e.preventDefault();
+          td.blur();
+        }
+      });
+    });
+
+    // دکمه پاک کردن همه
+    document.getElementById('btn-clear').addEventListener('click', function(){
+      if (!confirm('همه برنامه‌ها پاک شوند؟')) return;
+      document.querySelectorAll('td.slot').forEach(function(td){
+        td.innerText = '';
+      });
+      saveAll();
+    });
+
+    // دکمه پاک کردن یک روز
+    document.getElementById('btn-clear-row').addEventListener('click', function(){
+      var names = DAYS.map(function(n,i){ return (i+1) + ') ' + n; }).join('\n');
+      var input = prompt('کدام روز پاک شود؟\n' + names + '\n\nشماره روز را وارد کنید (۱ تا ۷):');
+      if (!input) return;
+      var idx = parseInt(toEn(input), 10) - 1;
+      if (isNaN(idx) || idx < 0 || idx > 6) {
+        alert('شماره نامعتبر است.');
+        return;
+      }
+      document.querySelectorAll('td.slot[data-day="' + idx + '"]').forEach(function(td){
+        td.innerText = '';
+      });
+      saveAll();
+    });
+
+    // دکمه چاپ
+    document.getElementById('btn-print').addEventListener('click', function(){
+      window.print();
+    });
+  }
+
+  function toEn(str){
+    return String(str).replace(/[۰-۹]/g, function(d){
+      return '۰۱۲۳۴۵۶۷۸۹'.indexOf(d);
+    });
+  }
+
+  / ============================================================
+     شروع
+     ============================================================ */
+  buildTable();
+  loadAll();
+  bindEvents();
+
+  // ذخیره نهایی هنگام خروج
+  window.addEventListener('beforeunload', saveAll);
+})();
+</script>
+
+</body>
+</html>
